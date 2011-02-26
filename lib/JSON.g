@@ -20,7 +20,11 @@ CreateJSONStringFromRecord:=function( input )
 		if IsRecord(input.(names[item])) then
 			str:=Concatenation(str, CreateJSONStringFromRecord(input.(names[item])) );
 		else
-			str:=Concatenation(str, "\"",String(input.(names[item])),"\"" );
+			if IsList(input.(names[item])) or IsBool(input.(names[item])) or IsInt(input.(names[item])) then
+				str:=Concatenation(str, String(input.(names[item])) );
+			else
+				str:=Concatenation(str, "\"",String(input.(names[item])) ,"\"");
+			fi;
 		fi;
 
 		if item < Size(names) then
@@ -45,6 +49,16 @@ CreateRecordFromJSONString:=function( str )
 			if recname = "" then
 				recname:=Substring(str, pos+1, q-pos-2);
 			else
+			
+				# I need to parse this string if
+				# it should be prased (e.g. if the string is
+				# "Group([()])" then I want to parse it.
+				#
+				# However, I can't find a try/catch system
+				# in GAP and EvalString will crash the 
+				# program if the string shouldn't have been
+				# parsed...
+			
 				result.(recname):=Substring(str, pos+1, q-pos-2);
 				recname:="";
 			fi;
