@@ -4,5 +4,5 @@
 ##  26th February 2011                                                           
 ## 
 
-ReadPackage("JSON","lib/StringFunctions.g");
-ReadPackage("JSON","lib/JSON.g");
+ReadPackage("JSONGAP","lib/StringFunctions.g");
+ReadPackage("JSONGAP","lib/JSON.g");

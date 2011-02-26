@@ -1,16 +1,16 @@
 #############################################################################
 ##  
-##  PackageInfo.g for the package `JSON'                       A. L. Drizen
+##  PackageInfo.g for the package `JSONGAP'                       A. L. Drizen
 ##                                                               
 
 SetPackageInfo( rec(
 
 ##  This is case sensitive, use your preferred spelling.
-PackageName := "JSON",
+PackageName := "JSONGAP",
 
 ##  This may be used by a default banner or on a Web page, should fit on
 ##  one line.
-Subtitle := "A JSON Parser For GAP",
+Subtitle := "A JSONGAP Parser For GAP",
 
 ##  See '?Extending: Version Numbers' in GAP help for an explanation
 ##  of valid version numbers. For an automatic package distribution update
@@ -28,7 +28,7 @@ Date := "26/02/2011",
 ##  The paths of the files in the archive must begin with the name of the
 ##  directory containing the package (in our "example" probably:
 ##  example/init.g, ...    or  example-1.3/init.g, ...  )
-ArchiveURL := "http://www.maths.qmul.ac.uk/~ald/JSON/JSON",
+ArchiveURL := "http://www.maths.qmul.ac.uk/~ald/JSONGAP/JSONGAP",
 
 ##  All provided formats as list of file extensions, separated by white
 ##  space or commas.
@@ -151,8 +151,8 @@ Status := "other",
 ##  the updating of package information on the GAP Website, and inclusion
 ##  and updating of the package in the GAP distribution.
 #
-README_URL:="http://www.maths.qmul.ac.uk/~ald/JSON/README",
-PackageInfoURL:="http://www.maths.qmul.ac.uk/~ald/JSON/PackageInfo.g",
+README_URL:="http://www.maths.qmul.ac.uk/~ald/JSONGAP/README",
+PackageInfoURL:="http://www.maths.qmul.ac.uk/~ald/JSONGAP/PackageInfo.g",
 
 ##  Here you  must provide a short abstract explaining the package content 
 ##  in HTML format (used on the package overview Web page) and an URL 
@@ -165,12 +165,12 @@ PackageInfoURL:="http://www.maths.qmul.ac.uk/~ald/JSON/PackageInfo.g",
 # computing the Smith normal form of integer matrices and some related \
 # utilities.",
 AbstractHTML := 
-  "The <span class=\"pkgname\">JSON</span> package, is an extension \
+  "The <span class=\"pkgname\">JSONGAP</span> package, is an extension \
 	of the <span class=\"pkgname\">DESIGN</span> package. It is able \
 	to generate uniformly distributed random 2-design with block size 3\
 	as well as perform other related tasks",
 
-PackageWWWHome := "http://www.maths.qmul.ac.uk/~ald/JSON",
+PackageWWWHome := "http://www.maths.qmul.ac.uk/~ald/JSONGAP",
                
 ##  Here is the information on the help books of the package, used for
 ##  loading into GAP's online help and maybe for an online copy of the 
@@ -200,7 +200,7 @@ PackageWWWHome := "http://www.maths.qmul.ac.uk/~ald/JSON",
 ##  
 # in case of several help books give a list of such records here:
 PackageDoc := rec(          
-  BookName  := "JSON",
+  BookName  := "JSONGAP",
   ArchiveURLSubset := ["htm/chapters.htm","doc/chapters.htm"],
   HTMLStart := "chapters.htm",
   PDFFile   := "manual.pdf",
@@ -246,11 +246,11 @@ Dependencies := rec(
 AvailabilityTest := function()
   local path,file;
     # test for existence of the compiled binary
-    path:=DirectoriesPackagePrograms("JSON");
+    path:=DirectoriesPackagePrograms("JSONGAP");
     file:=Filename(path,"hello");
     if file=fail then
       Info(InfoWarning,1,
-        "Package ``JSON'': The program `hello' is not compiled");
+        "Package ``JSONGAP'': The program `hello' is not compiled");
       Info(InfoWarning,1,
         "`HelloWorld()' is thus unavailable");
       Info(InfoWarning,1,
@@ -270,10 +270,10 @@ AvailabilityTest := function()
 ##  when it is not shown. *optional* (note the ~-syntax in this example)
 BannerString := Concatenation( 
   "----------------------------------------------------------------\n",
-  "Loading  JSON ", ~.Version, "\n",
+  "Loading  JSONGAP ", ~.Version, "\n",
   "by ", ~.Persons[1].FirstNames, " ", ~.Persons[1].LastName,
         " (", ~.Persons[1].WWWHome, ")\n",
-  "For help, type: ?JSON package \n",
+  "For help, type: ?JSONGAP package \n",
   "----------------------------------------------------------------\n" ),
 
 ##  Suggest here if the package should be *automatically loaded* when GAP is 

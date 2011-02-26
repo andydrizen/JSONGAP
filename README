@@ -6,7 +6,7 @@
 	and it does the job. If I were you, I'd make sure that you inspect the output of this
 	package carefully to make sure it's doing what you want.
 	
-	Also, because GAP and floating point numbers don't like each other, if you try to conver
+	Also, because GAP and floating point numbers don't like each other, if you try to convert
 	a JSON string to a rec() that contains a float, it'll crash. The best workaround I've
 	been able to think of is to surround your floats in &quot; s.
 
@@ -22,10 +22,10 @@
 
 	1.2 
 
-		To initialise the JSON Package, put the JSON folder in the pkg director of your GAP 
+		To initialise the JSONGAP Package, put the JSON folder in the pkg director of your GAP 
 		root and in GAP type:
 
-		gap> LoadPackage("JSON");
+		gap> LoadPackage("JSONGAP");
 
 2. Usage
 
