@@ -10,6 +10,28 @@
 #
 ################################################################################
 
+#############################################################################
+##
+#F  EvalString2( <expr> ) . .modified version that doesn't crash if it fails.
+##
+_EVALSTRINGTMP2 := 0;
+EvalString2:=function( s )
+  local a, f, res;
+  a := "_EVALSTRINGTMP2:=";
+  Append(a, s);
+  Add(a, ';');
+  Unbind(_EVALSTRINGTMP2);
+  f := InputTextString(a);
+  Read(f);
+  if not IsBound(_EVALSTRINGTMP2) then
+    return s;
+  fi;
+  res := _EVALSTRINGTMP2;
+  Unbind(_EVALSTRINGTMP2);
+  return res;
+end;
+Unbind(_EVALSTRINGTMP2);
+
 CreateJSONStringFromRecord:=function( input )
 	local names,item, str,i,tmp;
 	names:=RecNames(input);
@@ -20,15 +42,14 @@ CreateJSONStringFromRecord:=function( input )
 		if IsRecord(input.(names[item])) then
 			str:=Concatenation(str, CreateJSONStringFromRecord(input.(names[item])) );
 		else
-			if IsList(input.(names[item])) or IsBool(input.(names[item])) or IsInt(input.(names[item])) then
+			if not IsString(input.(names[item])) and (IsList(input.(names[item])) or IsBool(input.(names[item])) or IsInt(input.(names[item]))) then
 				str:=Concatenation(str, String(input.(names[item])) );
 			else
-				str:=Concatenation(str, String(input.(names[item])) );
-				#
-				# Until I figure out how to EvalString everything with try/catch,
-				# i'm opting for bad JSON.
-				#
-				# str:=Concatenation(str, "\"",String(input.(names[item])) ,"\"");
+				if IsString(input.(names[item])) then
+					str:=Concatenation(str, "\"",String(input.(names[item])),"\"" );
+				else
+					str:=Concatenation(str, "\"",String(input.(names[item])),"\"");
+				fi;
 			fi;
 		fi;
 
@@ -64,7 +85,7 @@ CreateRecordFromJSONString:=function( str )
 				# program if the string shouldn't have been
 				# parsed...
 			
-				result.(recname):=Substring(str, pos+1, q-pos-2);
+				result.(recname):=EvalString2(Substring(str, pos+1, q-pos-2));
 				recname:="";
 			fi;
 			pos:=q+1;
