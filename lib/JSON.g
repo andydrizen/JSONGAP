@@ -61,23 +61,6 @@ handleString:=function(s)
 	fi;
 end;
 
-CreateJSONStringFromRecord:=function( input )
-	local names,item, str,i,tmp;
-	names:=RecNames(input);
-	str:="{";
-	for item in [1..Size(names)] do
-		str:=Concatenation(str, "\"",names[item],"\"");
-		str:=Concatenation(str, ":");
-		str:=Concatenation(str,  handleString(input.(names[item])));
-
-		if item < Size(names) then
-			str:=Concatenation(str, ", ");
-		fi;
-	od;
-	str:=Concatenation(str, "}");
-	return str;
-end;
-
 ParseList:=function(l)
 	local i,result;
 	result:=[];
@@ -98,6 +81,38 @@ ParseList:=function(l)
 	od;
 	return result;
 end;
+
+CreateJSONStringFromRecord:=function( input )
+	local names,item, str,i,tmp;
+	names:=RecNames(input);
+	str:="{";
+	for item in [1..Size(names)] do
+		str:=Concatenation(str, "\"",names[item],"\"");
+		str:=Concatenation(str, ":");
+		
+		#str:=Concatenation(str,  handleString(input.(names[item])));
+		
+		if IsRecord(input.(names[item])) then
+			str:=Concatenation(str, CreateJSONStringFromRecord(input.(names[item])) );
+		else
+			if not IsString(input.(names[item])) and (IsList(input.(names[item])) or IsBool(input.(names[item])) or IsInt(input.(names[item]))) then
+				str:=Concatenation(str, String(input.(names[item])) );
+			else
+				if IsString(input.(names[item])) then
+					str:=Concatenation(str, "\"",String(input.(names[item])),"\"" );
+				else
+					str:=Concatenation(str, "\"",String(input.(names[item])),"\"");
+				fi;
+			fi;
+		fi;
+		if item < Size(names) then
+			str:=Concatenation(str, ", ");
+		fi;
+	od;
+	str:=Concatenation(str, "}");
+	return str;
+end;
+
 
 CreateRecordFromJSONString:=function( str )
 	local s,result,pos,recname,recvalue,q,k,tmp_rec,m;
@@ -164,7 +179,9 @@ CreateRecordFromJSONString:=function( str )
 				k:=SubstringIndexInString(recvalue, "{", 0);
 			od;
 			
-			result.(recname):=ParseList(EvalString2(recvalue))	;
+			#result.(recname):=ParseList(EvalString2(recvalue))	;
+			
+			result.(recname):=EvalString(recvalue);
 			recname:="";
 			pos:=pos+q;
 			continue;
