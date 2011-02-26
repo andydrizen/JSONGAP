@@ -22,7 +22,8 @@
 
 	1.2 
 
-		To initialise the JSON Package, put the JSON folder in the pkg director of your GAP root and in GAP type:
+		To initialise the JSON Package, put the JSON folder in the pkg director of your GAP 
+		root and in GAP type:
 
 		gap> LoadPackage("JSON");
 
@@ -32,22 +33,27 @@
 
 		2.1.1 JSONStringify( rec(), path )
 		
-			This function will output a JSON version of your rec() to the specified path. For example,
+			This function will output a JSON version of your rec() to the specified path. 
+			For example,
 		
-			gap> JSONStringify( rec( blocks := [ [ 1, 4, 7 ], [ 1, 5, 8 ] ], improper := false,  tSubsetStructure := rec( lambdas := [ 1, 0 ] ) ) , "~/Desktop/example1.js");
+			gap> JSONStringify( rec( blocks := [ [ 1, 4, 7 ], [ 1, 5, 8 ] ], improper := false, \
+					tSubsetStructure := rec( lambdas := [ 1, 0 ] ) ) , "~/Desktop/example1.js");
 		
 			will yield the following string in the file stated:
 		
-			{"blocks":[ [ 1, 4, 7 ], [ 1, 5, 8 ] ], "improper":false, "tSubsetStructure":{"lambdas":[ 1, 0 ]}}
+			{"blocks":[ [ 1, 4, 7 ], [ 1, 5, 8 ] ], "improper":false, 
+				"tSubsetStructure":{"lambdas":[ 1, 0 ]}}
 		
 		2.1.2 JSONParse( path )
 		
-			This function will read the contents of the file given in path as a string and convert it to a record. For example,
+			This function will read the contents of the file given in path 
+			as a string and convert it to a record. For example,
 			
 			gap> JSONParse("~/Desktop/example1.js");
 			
 			will return:
 			
-			rec( blocks := [ [ 1, 4, 7 ], [ 1, 5, 8 ] ], improper := false, tSubsetStructure := rec( lambdas := [ 1, 0 ] ) )
+			rec( blocks := [ [ 1, 4, 7 ], [ 1, 5, 8 ] ], improper := false, \
+						tSubsetStructure := rec( lambdas := [ 1, 0 ] ) )
 			
 			
