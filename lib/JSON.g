@@ -20,7 +20,7 @@ CreateJSONStringFromRecord:=function( input )
 		if IsRecord(input.(names[item])) then
 			str:=Concatenation(str, CreateJSONStringFromRecord(input.(names[item])) );
 		else
-			str:=Concatenation(str, String(input.(names[item])) );
+			str:=Concatenation(str, "\"",String(input.(names[item])),"\"" );
 		fi;
 
 		if item < Size(names) then
