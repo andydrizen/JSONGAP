@@ -23,7 +23,12 @@ CreateJSONStringFromRecord:=function( input )
 			if IsList(input.(names[item])) or IsBool(input.(names[item])) or IsInt(input.(names[item])) then
 				str:=Concatenation(str, String(input.(names[item])) );
 			else
-				str:=Concatenation(str, "\"",String(input.(names[item])) ,"\"");
+				str:=Concatenation(str, String(input.(names[item])) );
+				#
+				# Until I figure out how to EvalString everything with try/catch,
+				# i'm opting for bad JSON.
+				#
+				# str:=Concatenation(str, "\"",String(input.(names[item])) ,"\"");
 			fi;
 		fi;
 
