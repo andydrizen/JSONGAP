@@ -1,0 +1,53 @@
+-1. Caveat
+
+	This is a very basic JSON parser for GAP. It turns a JSON string in to a record.
+	
+	I needed it for another project I'm working on
+	and it does the job. If I were you, I'd make sure that you inspect the output of this
+	package carefully to make sure it's doing what you want.
+	
+	Also, because GAP and floating point numbers don't like each other, if you try to conver
+	a JSON string to a rec() that contains a float, it'll crash. The best workaround I've
+	been able to think of is to surround your floats in &quot; s.
+
+0. Licence
+
+	See licence.txt
+
+1. Installation
+
+	1.1 Requirements
+		
+		Just GAP.
+
+	1.2 
+
+		To initialise the JSON Package, put the JSON folder in the pkg director of your GAP root and in GAP type:
+
+		gap> LoadPackage("JSON");
+
+2. Usage
+
+	2.1 Quick Start
+
+		2.1.1 JSONStringify( rec(), path )
+		
+			This function will output a JSON version of your rec() to the specified path. For example,
+		
+			gap> JSONStringify( rec( blocks := [ [ 1, 4, 7 ], [ 1, 5, 8 ] ], improper := false,  tSubsetStructure := rec( lambdas := [ 1, 0 ] ) ) , "~/Desktop/example1.js");
+		
+			will yield the following string in the file stated:
+		
+			{"blocks":[ [ 1, 4, 7 ], [ 1, 5, 8 ] ], "improper":false, "tSubsetStructure":{"lambdas":[ 1, 0 ]}}
+		
+		2.1.2 JSONParse( path )
+		
+			This function will read the contents of the file given in path as a string and convert it to a record. For example,
+			
+			gap> JSONParse("~/Desktop/example1.js");
+			
+			will return:
+			
+			rec( blocks := [ [ 1, 4, 7 ], [ 1, 5, 8 ] ], improper := false, tSubsetStructure := rec( lambdas := [ 1, 0 ] ) )
+			
+			
