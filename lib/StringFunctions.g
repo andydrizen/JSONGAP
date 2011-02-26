@@ -45,15 +45,11 @@ FindMatchingBracket:=function ( str, open, close )
 	while offset < Size(str) do
 		o:=SubstringIndexInString( str, [open], offset);
 		c:=SubstringIndexInString( str, [close], offset);
-		#Print("str:",str,", o:",o,", c:",c,", offset:",offset,"\n");
 		if 	o =-1 or c < o then
-			#Print("returning c: ",c,"\n");
 			return c;
 		else
-			#Print("diving\n");
 			offset:=o-1 + FindMatchingBracket(Substring(str,o, Size(str)), open, close );
 		fi;
 	od;
 	return 0;
-	#Print("FAIL\n");
 end;
