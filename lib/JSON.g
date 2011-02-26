@@ -32,6 +32,35 @@ EvalString2:=function( s )
 end;
 Unbind(_EVALSTRINGTMP2);
 
+handleString:=function(s)
+	local i,l;
+	if IsRecord(s) then
+		return CreateJSONStringFromRecord(s);
+	else
+		if not IsString(s) and (IsList(s) or IsBool(s) or IsInt(s)) then
+			if IsList(s) and not IsString(s) then
+				l:=[];
+				for i in s do
+					if IsRecord(i) then
+						Add(l, CreateJSONStringFromRecord(i));
+					else
+						Add(l, EvalString(handleString(i)));
+					fi;
+				od;
+				return String(l);
+			else
+				return String(s) ;
+			fi;
+		else
+			if IsString(s) then
+				return Concatenation("\"",String(s),"\"") ;
+			else
+				return Concatenation("\"",String(s),"\"") ;
+			fi;
+		fi;
+	fi;
+end;
+
 CreateJSONStringFromRecord:=function( input )
 	local names,item, str,i,tmp;
 	names:=RecNames(input);
@@ -39,19 +68,7 @@ CreateJSONStringFromRecord:=function( input )
 	for item in [1..Size(names)] do
 		str:=Concatenation(str, "\"",names[item],"\"");
 		str:=Concatenation(str, ":");
-		if IsRecord(input.(names[item])) then
-			str:=Concatenation(str, CreateJSONStringFromRecord(input.(names[item])) );
-		else
-			if not IsString(input.(names[item])) and (IsList(input.(names[item])) or IsBool(input.(names[item])) or IsInt(input.(names[item]))) then
-				str:=Concatenation(str, String(input.(names[item])) );
-			else
-				if IsString(input.(names[item])) then
-					str:=Concatenation(str, "\"",String(input.(names[item])),"\"" );
-				else
-					str:=Concatenation(str, "\"",String(input.(names[item])),"\"");
-				fi;
-			fi;
-		fi;
+		str:=Concatenation(str,  handleString(input.(names[item])));
 
 		if item < Size(names) then
 			str:=Concatenation(str, ", ");
@@ -59,6 +76,27 @@ CreateJSONStringFromRecord:=function( input )
 	od;
 	str:=Concatenation(str, "}");
 	return str;
+end;
+
+ParseList:=function(l)
+	local i,result;
+	result:=[];
+	for i in l do
+		if IsRecord(i) then
+			Add(result, CreateJSONStringFromRecord(i));
+		else
+			if IsList(i) and not IsString(i) then
+				Add(result, ParseList(i));
+			else
+				if not IsString(i) and (IsList(i) or IsBool(i) or IsInt(i)) then
+					Add(result, i);
+				else
+					Add(result, EvalString2(i));
+				fi;
+			fi;
+		fi;
+	od;
+	return result;
 end;
 
 CreateRecordFromJSONString:=function( str )
@@ -75,16 +113,6 @@ CreateRecordFromJSONString:=function( str )
 			if recname = "" then
 				recname:=Substring(str, pos+1, q-pos-2);
 			else
-			
-				# I need to parse this string if
-				# it should be prased (e.g. if the string is
-				# "Group([()])" then I want to parse it.
-				#
-				# However, I can't find a try/catch system
-				# in GAP and EvalString will crash the 
-				# program if the string shouldn't have been
-				# parsed...
-			
 				result.(recname):=EvalString2(Substring(str, pos+1, q-pos-2));
 				recname:="";
 			fi;
@@ -136,7 +164,7 @@ CreateRecordFromJSONString:=function( str )
 				k:=SubstringIndexInString(recvalue, "{", 0);
 			od;
 			
-			result.(recname):=EvalString(recvalue);
+			result.(recname):=ParseList(EvalString2(recvalue))	;
 			recname:="";
 			pos:=pos+q;
 			continue;
