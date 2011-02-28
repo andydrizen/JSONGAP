@@ -32,55 +32,45 @@ EvalString2:=function( s )
 end;
 Unbind(_EVALSTRINGTMP2);
 
+# we put this prototype here so that handleString doesn't complain.
+CreateJSONStringFromRecord:=function() end;
+
 handleString:=function(s)
-	local i,l;
+	local i,l,str;
+	
+	Print();
+	
+	# RECORDS
 	if IsRecord(s) then
 		return CreateJSONStringFromRecord(s);
-	else
-		if not IsString(s) and (IsList(s) or IsBool(s) or IsInt(s)) then
-			if IsList(s) and not IsString(s) then
-				l:=[];
-				for i in s do
-					if IsRecord(i) then
-						Add(l, CreateJSONStringFromRecord(i));
-					else
-						Add(l, EvalString(handleString(i)));
-					fi;
-				od;
-				return String(l);
-			else
-				return String(s) ;
-			fi;
-		else
-			if IsString(s) then
-				return Concatenation("\"",String(s),"\"") ;
-			else
-				return Concatenation("\"",String(s),"\"") ;
-			fi;
-		fi;
 	fi;
+	
+	# LISTS (but not strings)
+	if (not IsString(s) or Size(s)=0) and IsList(s) then
+		l:=[];
+		for i in s do
+			Add(l,EvalString(handleString(i)));
+		od;
+		return String(l);
+	fi;
+	
+	# STRINGS
+	if IsString(s) then
+		return Concatenation("\"",String(s),"\"" );
+	fi;
+	
+	# BOOLS AND INTS
+	if IsBool(s) or IsInt(s) then
+		return String(s);
+	fi;
+	
+	# GROUPS
+	if IsGroup(s) then
+		return Concatenation("\"",String(s),"\"" );
+	fi;
+	return "";
 end;
 
-ParseList:=function(l)
-	local i,result;
-	result:=[];
-	for i in l do
-		if IsRecord(i) then
-			Add(result, CreateJSONStringFromRecord(i));
-		else
-			if IsList(i) and not IsString(i) then
-				Add(result, ParseList(i));
-			else
-				if not IsString(i) and (IsList(i) or IsBool(i) or IsInt(i)) then
-					Add(result, i);
-				else
-					Add(result, EvalString2(i));
-				fi;
-			fi;
-		fi;
-	od;
-	return result;
-end;
 
 CreateJSONStringFromRecord:=function( input )
 	local names,item, str,i,tmp;
@@ -90,21 +80,8 @@ CreateJSONStringFromRecord:=function( input )
 		str:=Concatenation(str, "\"",names[item],"\"");
 		str:=Concatenation(str, ":");
 		
-		#str:=Concatenation(str,  handleString(input.(names[item])));
-		
-		if IsRecord(input.(names[item])) then
-			str:=Concatenation(str, CreateJSONStringFromRecord(input.(names[item])) );
-		else
-			if not IsString(input.(names[item])) and (IsList(input.(names[item])) or IsBool(input.(names[item])) or IsInt(input.(names[item]))) then
-				str:=Concatenation(str, String(input.(names[item])) );
-			else
-				if IsString(input.(names[item])) then
-					str:=Concatenation(str, "\"",String(input.(names[item])),"\"" );
-				else
-					str:=Concatenation(str, "\"",String(input.(names[item])),"\"");
-				fi;
-			fi;
-		fi;
+		str:=Concatenation(str,  handleString(input.(names[item])));
+
 		if item < Size(names) then
 			str:=Concatenation(str, ", ");
 		fi;
@@ -113,6 +90,41 @@ CreateJSONStringFromRecord:=function( input )
 	return str;
 end;
 
+ParseList:=function(l)
+	local i,result,tmp,tmp2;
+	result:=[];
+	if IsString(l) then
+		l:=EvalString2(l);
+	fi;
+	for i in l do
+	
+		# RECORDS (we've already parsed these by the time we get here.)
+		if IsRecord(i) then
+			Add(result, i);
+			continue;
+		fi;
+		
+		# LISTS (but not strings)
+		if IsList(i) and not IsString(i) then
+			tmp:=ParseList(i);
+			Add(result, tmp);
+			continue;
+		fi;
+		
+		# STRINGS
+		if IsString(i) then
+			Add(result, EvalString2(i));
+			continue;
+		fi;
+		
+		# BOOLS AND INTS
+		if IsBool(i) or IsInt(i) then
+			Add(result, i);
+			continue;
+		fi;
+	od;
+	return result;
+end;
 
 CreateRecordFromJSONString:=function( str )
 	local s,result,pos,recname,recvalue,q,k,tmp_rec,m;
@@ -179,9 +191,8 @@ CreateRecordFromJSONString:=function( str )
 				k:=SubstringIndexInString(recvalue, "{", 0);
 			od;
 			
-			#result.(recname):=ParseList(EvalString2(recvalue))	;
-			
-			result.(recname):=EvalString(recvalue);
+			result.(recname):=ParseList(recvalue);
+			#result.(recname):=EvalString(recvalue);
 			recname:="";
 			pos:=pos+q;
 			continue;
