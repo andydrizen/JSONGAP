@@ -1,5 +1,5 @@
 ################################################################################
-# DesignMC/lib/JSON.g                                           Andy L. Drizen
+# JSONGAP/lib/JSON.g                                            Andy L. Drizen
 #                                                                   26/02/2011
 # File overview:
 # 
@@ -9,10 +9,10 @@
 #
 ################################################################################
 
-# we put this prototype here so that handleString doesn't complain.
+# we put this prototype here so that ParseStringRecordtoJSON doesn't complain.
 CreateJSONStringFromRecord:=function() end;
 
-handleString:=function(s)
+ParseStringRecordtoJSON:=function(s)
 	local i,l,str;
 	
 	# RECORDS
@@ -24,7 +24,7 @@ handleString:=function(s)
 	if (not IsString(s) or Size(s)=0) and IsList(s) then
 		l:=[];
 		for i in s do
-			Add(l,EvalString(handleString(i)));
+			Add(l,EvalString(ParseStringRecordtoJSON(i)));
 		od;
 		return String(l);
 	fi;
@@ -46,33 +46,14 @@ handleString:=function(s)
 	return "";
 end;
 
-
-CreateJSONStringFromRecord:=function( input )
-	local names,item, str,i,tmp;
-	names:=RecNames(input);
-	str:="{";
-	for item in [1..Size(names)] do
-		str:=Concatenation(str, "\"",names[item],"\"");
-		str:=Concatenation(str, ":");
-		
-		str:=Concatenation(str,  handleString(input.(names[item])));
-
-		if item < Size(names) then
-			str:=Concatenation(str, ", ");
-		fi;
-	od;
-	str:=Concatenation(str, "}");
-	return str;
-end;
-
-ParseString:=function( i )
+ParseStringJSONtoRecord:=function( i )
 	if Substring(i,1,5)="GAP://" then
 		return EvalString(Substring(i,7,Size(i) ) );
 	fi;
 	return i;
 end;
 
-ParseList:=function(l)
+ParseListJSONtoRecord:=function(l)
 	local i,result,tmp,tmp2;
 	result:=[];
 	if IsString(l) then
@@ -88,14 +69,14 @@ ParseList:=function(l)
 		
 		# LISTS (but not strings)
 		if IsList(i) and not IsString(i) then
-			tmp:=ParseList(i);
+			tmp:=ParseListJSONtoRecord(i);
 			Add(result, tmp);
 			continue;
 		fi;
 		
 		# STRINGS
 		if IsString(i) then
-			Add(result, ParseString(i));
+			Add(result, ParseStringJSONtoRecord(i));
 			continue;
 		fi;
 		
@@ -106,6 +87,24 @@ ParseList:=function(l)
 		fi;
 	od;
 	return result;
+end;
+
+CreateJSONStringFromRecord:=function( input )
+	local names,item, str,i,tmp;
+	names:=RecNames(input);
+	str:="{";
+	for item in [1..Size(names)] do
+		str:=Concatenation(str, "\"",names[item],"\"");
+		str:=Concatenation(str, ":");
+		
+		str:=Concatenation(str,  ParseStringRecordtoJSON(input.(names[item])));
+
+		if item < Size(names) then
+			str:=Concatenation(str, ", ");
+		fi;
+	od;
+	str:=Concatenation(str, "}");
+	return str;
 end;
 
 CreateRecordFromJSONString:=function( str )
@@ -122,7 +121,7 @@ CreateRecordFromJSONString:=function( str )
 			if recname = "" then
 				recname:=Substring(str, pos+1, q-pos-2);
 			else
-				result.(recname):=ParseString(Substring(str, pos+1, q-pos-2));
+				result.(recname):=ParseStringJSONtoRecord(Substring(str, pos+1, q-pos-2));
 				recname:="";
 			fi;
 			pos:=q+1;
@@ -173,7 +172,7 @@ CreateRecordFromJSONString:=function( str )
 				k:=SubstringIndexInString(recvalue, "{", 0);
 			od;
 			
-			result.(recname):=ParseList(recvalue);
+			result.(recname):=ParseListJSONtoRecord(recvalue);
 
 			recname:="";
 			pos:=pos+q;
