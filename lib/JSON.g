@@ -3,42 +3,17 @@
 #                                                                   26/02/2011
 # File overview:
 # 
-# This is a VERY BASIC JSON interpreter. If you make a JSON object using it,
-# then you probably won't have an issue reading it. As GAP hates floating point
+# This is a basic JSON interpreter. Remember GAP hates floating point
 # numbers, any JSON object containing a float will make the parser fail - 
 # to avoid this issue, turn your floats in to string.
 #
 ################################################################################
-
-#############################################################################
-##
-#F  EvalString2( <expr> ) . .modified version that doesn't crash if it fails.
-##
-_EVALSTRINGTMP2 := 0;
-EvalString2:=function( s )
-  local a, f, res;
-  a := "_EVALSTRINGTMP2:=";
-  Append(a, s);
-  Add(a, ';');
-  Unbind(_EVALSTRINGTMP2);
-  f := InputTextString(a);
-  Read(f);
-  if not IsBound(_EVALSTRINGTMP2) then
-    return s;
-  fi;
-  res := _EVALSTRINGTMP2;
-  Unbind(_EVALSTRINGTMP2);
-  return res;
-end;
-Unbind(_EVALSTRINGTMP2);
 
 # we put this prototype here so that handleString doesn't complain.
 CreateJSONStringFromRecord:=function() end;
 
 handleString:=function(s)
 	local i,l,str;
-	
-	Print();
 	
 	# RECORDS
 	if IsRecord(s) then
@@ -91,12 +66,9 @@ CreateJSONStringFromRecord:=function( input )
 end;
 
 ParseString:=function( i )
-	#Print("Got: ",i,"\n");
 	if Substring(i,1,5)="GAP://" then
-		#Print("It starts with GAP://, so I'm going to parse it ",Substring(i,7,Size(i) ),"\n");
-		return EvalString2(Substring(i,7,Size(i) ) );
+		return EvalString(Substring(i,7,Size(i) ) );
 	fi;
-	#Print("It doesn't start with GAP://, so no parsing.");
 	return i;
 end;
 
@@ -104,7 +76,7 @@ ParseList:=function(l)
 	local i,result,tmp,tmp2;
 	result:=[];
 	if IsString(l) then
-		l:=EvalString2(l);
+		l:=EvalString(l);
 	fi;
 	for i in l do
 	
@@ -202,7 +174,7 @@ CreateRecordFromJSONString:=function( str )
 			od;
 			
 			result.(recname):=ParseList(recvalue);
-			#result.(recname):=EvalString(recvalue);
+
 			recname:="";
 			pos:=pos+q;
 			continue;
