@@ -66,7 +66,7 @@ handleString:=function(s)
 	
 	# GROUPS
 	if IsGroup(s) then
-		return Concatenation("\"",String(s),"\"" );
+		return Concatenation("\"GAP://",String(s),"\"" );
 	fi;
 	return "";
 end;
@@ -88,6 +88,16 @@ CreateJSONStringFromRecord:=function( input )
 	od;
 	str:=Concatenation(str, "}");
 	return str;
+end;
+
+ParseString:=function( i )
+	#Print("Got: ",i,"\n");
+	if Substring(i,1,5)="GAP://" then
+		#Print("It starts with GAP://, so I'm going to parse it ",Substring(i,7,Size(i) ),"\n");
+		return EvalString2(Substring(i,7,Size(i) ) );
+	fi;
+	#Print("It doesn't start with GAP://, so no parsing.");
+	return i;
 end;
 
 ParseList:=function(l)
@@ -113,16 +123,8 @@ ParseList:=function(l)
 		
 		# STRINGS
 		if IsString(i) then
-			tmp2:=EvalString2(i);
-			
-			if IsGroup(tmp2) then
-				Add(result, tmp2);
-				continue;
-			fi;
-			
-			Add(result, i);
+			Add(result, ParseString(i));
 			continue;
-			
 		fi;
 		
 		# BOOLS AND INTS
@@ -148,7 +150,7 @@ CreateRecordFromJSONString:=function( str )
 			if recname = "" then
 				recname:=Substring(str, pos+1, q-pos-2);
 			else
-				result.(recname):=EvalString2(Substring(str, pos+1, q-pos-2));
+				result.(recname):=ParseString(Substring(str, pos+1, q-pos-2));
 				recname:="";
 			fi;
 			pos:=q+1;
