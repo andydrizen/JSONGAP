@@ -113,8 +113,16 @@ ParseList:=function(l)
 		
 		# STRINGS
 		if IsString(i) then
-			Add(result, EvalString2(i));
+			tmp2:=EvalString2(i);
+			
+			if IsGroup(tmp2) then
+				Add(result, tmp2);
+				continue;
+			fi;
+			
+			Add(result, i);
 			continue;
+			
 		fi;
 		
 		# BOOLS AND INTS
