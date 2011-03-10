@@ -12,6 +12,7 @@
 ################################################################################
 
 strpos:=function( haystack, needle, offset )
+	# offset is the number of characters to skip out
 	local h,n,k, sh, sn;
 	sh:=Size(haystack);
 	sn:=Size(needle);

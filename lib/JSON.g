@@ -21,7 +21,7 @@ ParseStringRecordtoJSON:=function(s)
 	fi;
 	
 	# LISTS (but not strings)
-	if (not IsString(s) or Size(s)=0) and IsList(s) then
+	if IsList(s) and not (IsString(s) or Size(s)=0) then
 		l:=[];
 		for i in s do
 			Add(l,EvalString(ParseStringRecordtoJSON(i)));
@@ -31,7 +31,7 @@ ParseStringRecordtoJSON:=function(s)
 	
 	# STRINGS
 	if IsString(s) then
-		return Concatenation("\"",String(s),"\"" );
+		return Concatenation("\"",String(s),"\"");
 	fi;
 	
 	# BOOLS AND INTS
@@ -96,9 +96,7 @@ CreateJSONStringFromRecord:=function( input )
 	for item in [1..Size(names)] do
 		str:=Concatenation(str, "\"",names[item],"\"");
 		str:=Concatenation(str, ":");
-		
 		str:=Concatenation(str,  ParseStringRecordtoJSON(input.(names[item])));
-
 		if item < Size(names) then
 			str:=Concatenation(str, ", ");
 		fi;
@@ -108,7 +106,7 @@ CreateJSONStringFromRecord:=function( input )
 end;
 
 CreateRecordFromJSONString:=function( str )
-	local s,result,pos,recname,recvalue,q,k,tmp_rec,m;
+	local s,result,pos,recname,recvalue,q,k,tmp_rec,m,flag;
 	pos:=2;
 	result:=rec();
 	recname:="";
@@ -117,7 +115,15 @@ CreateRecordFromJSONString:=function( str )
 	s:=Size(str);
 	while pos < s do
 		if str[pos] = '\"' then
-			q:=strpos(str, ['\"'], pos+1);
+			flag:=false;
+			q:=strpos(str, ['\"'], pos);
+			while flag = false do
+				if not [str[q-1]]=['\\'] then
+					flag:=true;
+				else
+					q:=strpos(str, ['\"'], q);
+				fi;
+			od;
 			if recname = "" then
 				recname:=substr(str, pos+1, q-pos-1);
 			else
