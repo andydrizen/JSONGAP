@@ -31,7 +31,6 @@ ParseStringRecordtoJSON:=function(s)
 	
 	# STRINGS
 	if IsString(s) then
-		Print("working with a string!!! ",Concatenation("\"",String(s),"\"" ));
 		return Concatenation("\"",String(s),"\"" );
 	fi;
 	
