@@ -1,14 +1,4 @@
--1. Caveat
-
-	This is a very basic JSON parser for GAP. It turns a JSON string in to a record.
-	
-	I needed it for another project I'm working on
-	and it does the job. If I were you, I'd make sure that you inspect the output of this
-	package carefully to make sure it's doing what you want.
-	
-	Also, because GAP and floating point numbers don't like each other, if you try to convert
-	a JSON string to a rec() that contains a float, it'll crash. The best workaround I've
-	been able to think of is to surround your floats in &quot; s.
+A JSON parser for GAP. It turns a JSON string in to a GAP record and vice-versa. 
 
 0. Licence
 
