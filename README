@@ -45,11 +45,4 @@ A JSON parser for GAP. It turns a JSON string in to a GAP record and vice-versa.
 			
 			rec( blocks := [ [ 1, 4, 7 ], [ 1, 5, 8 ] ], improper := false, \
 						tSubsetStructure := rec( lambdas := [ 1, 0 ] ) )
-			
-3. Known bugs
-
-	3.1 Nested strings
-
-		If you try to JSONStringify a nested string, e.g. " hello \"world\" ", then you 
-		will encounter an error. If you try to JSONParse such a string, you will also
-		encounter an error.
+	
