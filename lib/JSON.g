@@ -31,6 +31,7 @@ ParseStringRecordtoJSON:=function(s)
 	
 	# STRINGS
 	if IsString(s) then
+		Print("working with a string!!! ",Concatenation("\"",String(s),"\"" ));
 		return Concatenation("\"",String(s),"\"" );
 	fi;
 	
@@ -47,8 +48,8 @@ ParseStringRecordtoJSON:=function(s)
 end;
 
 ParseStringJSONtoRecord:=function( i )
-	if Substring(i,1,5)="GAP://" then
-		return EvalString(Substring(i,7,Size(i) ) );
+	if substr(i,1,6)="GAP://" then
+		return EvalString(substr(i,7,Size(i)+1 ) );
 	fi;
 	return i;
 end;
@@ -117,11 +118,11 @@ CreateRecordFromJSONString:=function( str )
 	s:=Size(str);
 	while pos < s do
 		if str[pos] = '\"' then
-			q:=SubstringIndexInString(str, ['\"'], pos+1);
+			q:=strpos(str, ['\"'], pos+1);
 			if recname = "" then
-				recname:=Substring(str, pos+1, q-pos-2);
+				recname:=substr(str, pos+1, q-pos-1);
 			else
-				result.(recname):=ParseStringJSONtoRecord(Substring(str, pos+1, q-pos-2));
+				result.(recname):=ParseStringJSONtoRecord(substr(str, pos+1, q-pos-1));
 				recname:="";
 			fi;
 			pos:=q+1;
@@ -129,20 +130,20 @@ CreateRecordFromJSONString:=function( str )
 		fi;
 		if str[pos] = ':' then
 		
-			if SubstringIndexInString(str, ",", pos) > -1 then
+			if strpos(str, ",", pos) > -1 then
 				# this ISN'T the last element
-				k:=SubstringIndexInString(str, ",", pos+1);
+				k:=strpos(str, ",", pos+1);
 			else
 				# this IS the last element
-				k:=SubstringIndexInString(str, "}", pos+1);
+				k:=strpos(str, "}", pos+1);
 			fi;
 		
-			if 	(SubstringIndexInString(str, "[", pos) = -1 or
-				SubstringIndexInString(str, "[", pos) > k) and
-				(SubstringIndexInString(str, "{", pos) = -1 or
-				SubstringIndexInString(str, "{", pos) > k) and
-				(SubstringIndexInString(str, "\"", pos) = -1 or
-				SubstringIndexInString(str, "\"", pos) > k)
+			if 	(strpos(str, "[", pos) = -1 or
+				strpos(str, "[", pos) > k) and
+				(strpos(str, "{", pos) = -1 or
+				strpos(str, "{", pos) > k) and
+				(strpos(str, "\"", pos) = -1 or
+				strpos(str, "\"", pos) > k)
 				then
 				
 				# in this situation, we've just seen a colon and we're not defining an array, string 
@@ -150,7 +151,7 @@ CreateRecordFromJSONString:=function( str )
 				# whitespace) in to the rec under the tmp_str name.
 				
 				q:=k;
-				recvalue:=Substring(str, pos+1, q-pos-2);
+				recvalue:=substr(str, pos+1, q-pos-1);
 				NormalizeWhitespace(recvalue);
 				result.(recname):=EvalString(recvalue);
 				recname:="";
@@ -159,17 +160,17 @@ CreateRecordFromJSONString:=function( str )
 			fi;
 		fi;
 		if str[pos] = '[' then
-			q:=FindMatchingBracket(Substring(str, pos, s), '[', ']');
-			recvalue:=Substring(str, pos, q-1);
+			q:=FindMatchingBracket(substr(str, pos, s+1), '[', ']');
+			recvalue:=substr(str, pos, q);
 			
 			# now parse this list for records.
-			k:=SubstringIndexInString(recvalue, "{", 0);
+			k:=strpos(recvalue, "{", 0);
 			
 			while k >- 1 do
-				m:=FindMatchingBracket(Substring(recvalue, k, Size(recvalue)), '{', '}');
-				tmp_rec:=CreateRecordFromJSONString(Substring(recvalue, k, m ));
-				recvalue:=Concatenation(Substring(recvalue, 1, k-2), String(tmp_rec), Substring(recvalue, m+k, Size(recvalue))) ;
-				k:=SubstringIndexInString(recvalue, "{", 0);
+				m:=FindMatchingBracket(substr(recvalue, k, Size(recvalue)+1), '{', '}');
+				tmp_rec:=CreateRecordFromJSONString(substr(recvalue, k, m+1 ));
+				recvalue:=Concatenation(substr(recvalue, 1, k-1), String(tmp_rec), substr(recvalue, m+k, Size(recvalue)+1)) ;
+				k:=strpos(recvalue, "{", 0);
 			od;
 			
 			result.(recname):=ParseListJSONtoRecord(recvalue);
@@ -179,8 +180,8 @@ CreateRecordFromJSONString:=function( str )
 			continue;
 		fi;
 		if str[pos] = '{' then
-			q:=FindMatchingBracket(Substring(str, pos, s), '{', '}');
-			recvalue:=CreateRecordFromJSONString(Substring(str, pos, q-1));
+			q:=FindMatchingBracket(substr(str, pos, s+1), '{', '}');
+			recvalue:=CreateRecordFromJSONString(substr(str, pos, q));
 			result.(recname):=recvalue;
 			recname:="";
 			pos:=pos+q;
