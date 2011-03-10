@@ -8,7 +8,7 @@ A JSON parser for GAP. It turns a JSON string in to a GAP record and vice-versa.
 
 	1.1 Requirements
 		
-		Just GAP.
+		GAP and the Strings package
 
 	1.2 
 

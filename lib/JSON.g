@@ -21,7 +21,7 @@ ParseStringRecordtoJSON:=function(s)
 	fi;
 	
 	# LISTS (but not strings)
-	if IsList(s) and not (IsString(s) or Size(s)=0) then
+	if IsList(s) and not IsString(s) or (IsString(s) and Size(s)=0 and not ViewString(s)="") then
 		l:=[];
 		for i in s do
 			Add(l,EvalString(ParseStringRecordtoJSON(i)));
@@ -31,6 +31,7 @@ ParseStringRecordtoJSON:=function(s)
 	
 	# STRINGS
 	if IsString(s) then
+		s:=str_replace(['\"'], ['\\','\"'],s);
 		return Concatenation("\"",String(s),"\"");
 	fi;
 	
@@ -47,6 +48,7 @@ ParseStringRecordtoJSON:=function(s)
 end;
 
 ParseStringJSONtoRecord:=function( i )
+	i:=str_replace(['\\','\"'],['\"'],i);
 	if substr(i,1,6)="GAP://" then
 		return EvalString(substr(i,7,Size(i)+1 ) );
 	fi;
@@ -68,7 +70,7 @@ ParseListJSONtoRecord:=function(l)
 		fi;
 		
 		# LISTS (but not strings)
-		if IsList(i) and not IsString(i) then
+		if IsList(i) and not(IsString(i) or ViewString(i)="") then
 			tmp:=ParseListJSONtoRecord(i);
 			Add(result, tmp);
 			continue;
