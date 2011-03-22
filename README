@@ -12,7 +12,7 @@ A JSON parser for GAP. It turns a JSON string in to a GAP record and vice-versa.
 
 	1.2 
 
-		To initialise the JSONGAP Package, put the JSON folder in the pkg director of your GAP 
+		To initialise the JSONGAP Package, put the JSON folder in the pkg directory of your GAP 
 		root and in GAP type:
 
 		gap> LoadPackage("JSONGAP");
