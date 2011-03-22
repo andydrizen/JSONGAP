@@ -204,11 +204,13 @@ JSONStringify:=function( input, path )
 	out:=OutputTextFile(path, false);
 	SetPrintFormattingStatus(out, false);
 	PrintTo(out, CreateJSONStringFromRecord(input));
+	CloseStream(out);
 end;
 
 JSONParse:=function( path )
 	local result,input;
 	input:=InputTextFile(path);
 	result:=CreateRecordFromJSONString( ReadAll(input) );
+	CloseStream(input);
 	return result;
 end;
