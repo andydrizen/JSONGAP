@@ -245,6 +245,7 @@ Dependencies := rec(
 #AvailabilityTest := ReturnTrue,
 AvailabilityTest := function()
   local path,file;
+	return true;
     # test for existence of the compiled binary
     path:=DirectoriesPackagePrograms("JSONGAP");
     file:=Filename(path,"hello");
