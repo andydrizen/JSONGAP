@@ -56,3 +56,30 @@ will return:
 
     rec( blocks := [ [ 1, 4, 7 ], [ 1, 5, 8 ] ], improper := false, tSubsetStructure := rec( lambdas := [ 1, 0 ] ) )
 	
+
+Advanced Features
+-----------------
+
+### GAP:// Prefix for Groups
+
+Suppose that you have the following record:
+
+    rec(myGroup:=Group([(1,2)(3,4)]));
+
+If, when converting to a JSON string we obtained:
+
+	{"myGroup":"Group([(1,2)(3,4)])");
+	
+we have to ensure that GAP doesn't parse this back to a string, like so:
+
+    rec(myGroup:="Group([(1,2)(3,4)])");
+    
+Therefore, when using JSONStringify, any GAP Groups are preceded by `GAP://`. This indicates to the JSONParse function that what follows must be evaluated.
+
+    gap> myRec:=rec(myGroup:=Group([(1,2)(3,4)]));;
+    gap> jsonString:=JSONStringify(myRec);
+    "{\"myGroup\":\"GAP://Group( [ (1,2)(3,4) ] )\"}"
+    gap> JSONParse(jsonString);
+	rec( myGroup := Group([ (1,2)(3,4) ]) )
+
+
