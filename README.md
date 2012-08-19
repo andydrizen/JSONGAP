@@ -21,7 +21,7 @@ root and in GAP type:
 
 Alternatively, you can download the source to any/folder/you/like/JSONGAP and then run GAP with
 
-`gap -l 'path/to/you/GAP4r5r5/bin/;any/folder/you/like/;'`
+`gap -l 'path/to/your/GAP4r5r5/bin/;any/folder/you/like/;'`
 
 Quick Start
 -----------
