@@ -1,15 +1,11 @@
 ################################################################################
 # JSONGAP/lib/JSON.g                                            Andy L. Drizen
 #                                                                   26/02/2011
-# File overview:
-# 
-# This is a basic JSON interpreter. Remember GAP hates floating point
-# numbers, any JSON object containing a float will make the parser fail - 
-# to avoid this issue, turn your floats in to string.
+#
+# This is a basic JSON interpreter. 
 #
 ################################################################################
 
-# we put this prototype here so that ParseStringRecordtoJSON doesn't complain.
 CreateJSONStringFromRecord:=function() end;
 
 ParseStringRecordtoJSON:=function(s)
@@ -35,8 +31,8 @@ ParseStringRecordtoJSON:=function(s)
 		return Concatenation("\"",String(s),"\"");
 	fi;
 	
-	# BOOLS AND INTS
-	if IsBool(s) or IsInt(s) then
+	# BOOLS, INTS AND FLOATS
+	if IsBool(s) or IsInt(s) or IsFloat(s) then
 		return String(s);
 	fi;
 	
@@ -47,44 +43,56 @@ ParseStringRecordtoJSON:=function(s)
 	return "";
 end;
 
-ParseStringJSONtoRecord:=function( i )
-	i:=str_replace(['\\','\"'],['\"'],i);
-	if substr(i,1,6)="GAP://" then
-		return EvalString(substr(i,7,Size(i)+1 ) );
+ParseGroupStringJSONtoRecord:=function( item )
+	if substr(item,1,6)="GAP://" then
+		return EvalString(substr(item,7,Size(item)+1 ) );
 	fi;
-	return i;
+	return item;
 end;
 
+ParseStringJSONtoRecord:=function( i )
+	return ParseGroupStringJSONtoRecord(str_replace(['\\','\"'],['\"'],i));
+end;
+
+# a:=ManyStepsProper(DMCLatinSquareMake(4,1), 100);;
+# AutomorphismGroup(a);
+# j:=JSONStringify(a);
+# JSONParse(j);
+
 ParseListJSONtoRecord:=function(l)
-	local i,result,tmp,tmp2;
+	local item,result,tmp,tmp2;
+	
 	result:=[];
 	if IsString(l) then
 		l:=EvalString(l);
 	fi;
-	for i in l do
+	for item in l do
 	
 		# RECORDS (we've already parsed these by the time we get here.)
-		if IsRecord(i) then
-			Add(result, i);
+		if IsRecord(item) then
+			Add(result, item);
 			continue;
 		fi;
 		
 		# LISTS (but not strings)
-		if IsList(i) and not(IsString(i) or ViewString(i)="") then
-			tmp:=ParseListJSONtoRecord(i);
+		if IsList(item) and not IsString(item) or 
+		(IsString(item) and Size(item)=0 and not 
+		ViewString(item)="") then
+			tmp:=ParseListJSONtoRecord(item);
 			Add(result, tmp);
 			continue;
 		fi;
 		
 		# STRINGS
-		if IsString(i) then
-			Add(result, ParseStringJSONtoRecord(i));
+		
+		if IsString(item) then
+			Add(result, ParseGroupStringJSONtoRecord(ParseStringJSONtoRecord(item)));
 			continue;
 		fi;
 		
-		# BOOLS AND INTS
-		if IsBool(i) or IsInt(i) then
-			Add(result, i);
+		# BOOLS, INTS AND FLOATS
+		if IsBool(item) or IsInt(item) or IsFloat(item) then
+			Add(result, item);
 			continue;
 		fi;
 	od;
@@ -199,7 +207,7 @@ CreateRecordFromJSONString:=function( str )
 	return result;
 end;
 
-JSONStringify:=function( input, path )
+JSONStringifyToPath:=function( input, path )
 	local out;
 	out:=OutputTextFile(path, false);
 	SetPrintFormattingStatus(out, false);
@@ -207,7 +215,15 @@ JSONStringify:=function( input, path )
 	CloseStream(out);
 end;
 
-JSONParse:=function( path )
+JSONStringify:=function( input )
+	return CreateJSONStringFromRecord(input);
+end;
+
+JSONParse:=function( jsonString )
+	return CreateRecordFromJSONString( jsonString );;
+end;
+
+JSONParseFromPath:=function( path )
 	local result,input;
 	input:=InputTextFile(path);
 	result:=CreateRecordFromJSONString( ReadAll(input) );
